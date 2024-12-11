@@ -141,9 +141,6 @@
             font-weight: bold;
             display: none;
         }
-        #export-buttons, #import-buttons {
-            margin-top: 20px;
-        }
         .clicked-btn {
             background-color: #FFD700 !important;
         }
@@ -173,6 +170,20 @@
             bottom: 0;
             width: 100%;
             margin-top: 20px;
+        }
+        .save-all-btn {
+            background-color: #003366;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+            transition: background-color 0.3s ease;
+        }
+        .save-all-btn:hover {
+            background-color: #004d99;
         }
     </style>
 </head>
@@ -235,16 +246,8 @@
         </div>
     </div>
 
-    <div id="export-buttons" class="section">
-        <button id="exportResultsBtn" onclick="exporterResults()">Exporter Résultats</button>
-        <button id="exportClassementBtn" onclick="exporterClassement()">Exporter Classement</button>
-    </div>
-
-    <div id="import-buttons" class="section">
-        <input type="file" id="importResults" accept=".json" />
-        <button id="importResultsBtn" onclick="importerResults()">Importer Résultats</button>
-        <input type="file" id="importClassement" accept=".json" />
-        <button id="importClassementBtn" onclick="importerClassement()">Importer Classement</button>
+    <div class="section">
+        <button id="saveAllBtn" onclick="sauvegarderTout()" class="save-all-btn">Sauvegarder les données</button>
     </div>
 
     <footer class="footer">
@@ -347,13 +350,18 @@
             const equipe2 = document.getElementById(`score_${journee}_${matchIndex}_2`).dataset.equipe;
 
             if (!isNaN(score1) && !isNaN(score2)) {
-                matches[journee] = matches[journee] || [];
+                if (!matches[journee]) {
+                    matches[journee] = [];
+                }
+                
                 matches[journee][matchIndex] = {
                     [equipe1]: score1,
                     [equipe2]: score2
                 };
 
-                sauvegarderMatches();
+                // Save matches immediately
+                localStorage.setItem('matches', JSON.stringify(matches));
+                
                 afficherMessage();
                 calculerClassement();
                 updateNewsFeed();
@@ -370,7 +378,7 @@
             if (matches[journee] && matches[journee][matchIndex]) {
                 delete matches[journee][matchIndex];
 
-                sauvegarderMatches();
+                localStorage.setItem('matches', JSON.stringify(matches));
                 calculerClassement();
                 updateNewsFeed();
             }
@@ -389,39 +397,49 @@
         }
 
         function calculerClassement() {
+            // Reset all team stats
             for (let equipe in equipes) {
-                equipes[equipe].points = 0;
-                equipes[equipe].matchs = 0;
-                equipes[equipe].butsPour = 0;
-                equipes[equipe].butsContre = 0;
+                equipes[equipe] = {
+                    ...equipes[equipe],
+                    points: 0,
+                    matchs: 0,
+                    butsPour: 0,
+                    butsContre: 0
+                };
             }
 
+            // Calculate new stats
             matches.forEach(journee => {
-                journee.forEach(match => {
-                    const equipesMatch = Object.keys(match);
-                    const score1 = match[equipesMatch[0]];
-                    const score2 = match[equipesMatch[1]];
+                if (journee) {
+                    journee.forEach(match => {
+                        if (match) {
+                            const equipesMatch = Object.keys(match);
+                            const score1 = match[equipesMatch[0]];
+                            const score2 = match[equipesMatch[1]];
 
-                    equipes[equipesMatch[0]].matchs++;
-                    equipes[equipesMatch[1]].matchs++;
+                            equipes[equipesMatch[0]].matchs++;
+                            equipes[equipesMatch[1]].matchs++;
 
-                    equipes[equipesMatch[0]].butsPour += score1;
-                    equipes[equipesMatch[0]].butsContre += score2;
-                    equipes[equipesMatch[1]].butsPour += score2;
-                    equipes[equipesMatch[1]].butsContre += score1;
+                            equipes[equipesMatch[0]].butsPour += score1;
+                            equipes[equipesMatch[0]].butsContre += score2;
+                            equipes[equipesMatch[1]].butsPour += score2;
+                            equipes[equipesMatch[1]].butsContre += score1;
 
-                    if (score1 > score2) {
-                        equipes[equipesMatch[0]].points += 3;
-                    } else if (score2 > score1) {
-                        equipes[equipesMatch[1]].points += 3;
-                    } else {
-                        equipes[equipesMatch[0]].points += 1;
-                        equipes[equipesMatch[1]].points += 1;
-                    }
-                });
+                            if (score1 > score2) {
+                                equipes[equipesMatch[0]].points += 3;
+                            } else if (score2 > score1) {
+                                equipes[equipesMatch[1]].points += 3;
+                            } else {
+                                equipes[equipesMatch[0]].points += 1;
+                                equipes[equipesMatch[1]].points += 1;
+                            }
+                        }
+                    });
+                }
             });
 
-            sauvegarderEquipes();
+            // Save equipes data immediately
+            localStorage.setItem('equipes', JSON.stringify(equipes));
             mettreAJourClassement();
         }
 
@@ -451,66 +469,19 @@
                 });
         }
 
-        function exporterResults() {
-            const results = JSON.stringify(matches, null, 2);
-            const blob = new Blob([results], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'results.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            changerCouleurBouton('exportResultsBtn');
-        }
-
-        function exporterClassement() {
-            const classement = JSON.stringify(equipes, null, 2);
-            const blob = new Blob([classement], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'classement.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            changerCouleurBouton('exportClassementBtn');
-        }
-
-        function importerResults() {
-            const fileInput = document.getElementById('importResults');
-            const file = fileInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    matches = JSON.parse(e.target.result);
-                    sauvegarderMatches();
-                    remplirRencontresTable();
-                    calculerClassement();
-                };
-                reader.readAsText(file);
-                changerCouleurBouton('importResultsBtn');
-            }
-        }
-
-        function importerClassement() {
-            const fileInput = document.getElementById('importClassement');
-            const file = fileInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    equipes = JSON.parse(e.target.result);
-                    sauvegarderEquipes();
-                    mettreAJourClassement();
-                };
-                reader.readAsText(file);
-                changerCouleurBouton('importClassementBtn');
-            }
-        }
-
-        function changerCouleurBouton(id) {
-            const bouton = document.getElementById(id);
-            bouton.classList.add('clicked-btn');
+        function sauvegarderTout() {
+            // Save matches
+            localStorage.setItem('matches', JSON.stringify(matches));
+            
+            // Save equipes
+            localStorage.setItem('equipes', JSON.stringify(equipes));
+            
+            // Show success message
+            const message = document.getElementById('message');
+            message.textContent = "Toutes les données ont été sauvegardées!";
+            message.style.display = 'block';
             setTimeout(() => {
-                bouton.classList.remove('clicked-btn');
+                message.style.display = 'none';
             }, 2000);
         }
 
@@ -567,6 +538,18 @@
         }
 
         window.onload = function() {
+            // Load saved data
+            const savedMatches = localStorage.getItem('matches');
+            const savedEquipes = localStorage.getItem('equipes');
+            
+            if (savedMatches) {
+                matches = JSON.parse(savedMatches);
+            }
+            
+            if (savedEquipes) {
+                equipes = JSON.parse(savedEquipes);
+            }
+
             remplirRencontresTable();
             calculerClassement();
             updateNewsFeed();
