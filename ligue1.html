@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<html><head><base href="https://example.com/"><!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -20,16 +20,60 @@
             position: relative;
             width: 100%;
             height: 300px;
-            background: url('https://example.com/banner.jpg') no-repeat center center;
+            background: url('https://foot-ours.github.io/ligue1/banner.jpg') no-repeat center center;
             background-size: cover;
         }
-        .banner-text {
+        .banner-content {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
             color: white;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            backdrop-filter: blur(5px);
+            transition: all 0.5s ease;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        #teamName {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96c93d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 5s ease infinite;
+        }
+        #bannerImage {
+            max-width: 120px;
+            height: auto;
+            margin: 15px auto;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+            transition: transform 0.3s ease;
+        }
+        #bannerImage:hover {
+            transform: scale(1.1);
+        }
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
         .section {
             padding: 20px;
@@ -40,19 +84,29 @@
             margin: 10px;
         }
         .news-feed {
-            background-color: white;
+            margin: 20px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-height: 400px;
+            overflow-y: auto;
         }
-        .footer {
-            background-color: #003366;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+        .news-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+        }
+        .news-item h3 {
+            color: #003366;
+            margin: 0 0 10px 0;
+        }
+        .news-item p {
+            margin: 0;
+            color: #333;
+        }
+        .news-item:hover {
+            background-color: #f5f5f5;
         }
         .delete-btn {
             color: red;
@@ -98,14 +152,40 @@
             max-width: 100px;
             margin-right: 20px;
         }
+        table img {
+            width: 30px;
+            height: 30px;
+            vertical-align: middle;
+            margin: 0 5px;
+        }
+        td {
+            vertical-align: middle;
+        }
+        .highlight {
+            background-color: #e0f7fa;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #003366;
+            color: white;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1><img src="OIP.png" alt="Logo de Ligue 1 des Ours"> Résultats et Classement Ligue 1 des Ours</h1>
+        <h1><img src="https://foot-ours.github.io/ligue1/OIP.png" alt="Logo de Ligue 1 des Ours"> Résultats et Classement Ligue 1 des Ours</h1>
     </header>
 
     <div class="banner">
+        <div class="banner-content">
+            <span id="teamName"></span>
+            <img id="bannerImage" src="" alt="">
+        </div>
         <div class="banner-text">Derniers matchs et temps forts de la Ligue 1</div>
     </div>
 
@@ -147,6 +227,14 @@
         </table>
     </div>
 
+    <div id="newsFeed" class="news-feed">
+        <h2>Actualités de la Ligue</h2>
+        <div class="news-item">
+            <h3>Bienvenue sur le site de la Ligue 1 des Ours</h3>
+            <p>Suivez tous les résultats et le classement de la saison en cours.</p>
+        </div>
+    </div>
+
     <div id="export-buttons" class="section">
         <button id="exportResultsBtn" onclick="exporterResults()">Exporter Résultats</button>
         <button id="exportClassementBtn" onclick="exporterClassement()">Exporter Classement</button>
@@ -166,80 +254,111 @@
     <script>
         let matches = JSON.parse(localStorage.getItem('matches')) || [];
         let equipes = JSON.parse(localStorage.getItem('equipes')) || {
-            "Valenciennes Footbalours Club": { logo: "vafc.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
-            "Toulours Football Club": { logo: "tfc.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
-            "Peluche Football Club": { logo: "pfc.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
-            "Peluche Saint-Germours": { logo: "psg.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
-            "Olympique d'Ours FC": { logo: "oo.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
-            "Associations Carrotes Lapines": { logo: "ascl.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 }
+            "Valenciennes Footbalours Club": { logo: "https://foot-ours.github.io/ligue1/vafc.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
+            "Toulours Football Club": { logo: "https://foot-ours.github.io/ligue1/tfc.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
+            "Peluche Football Club": { logo: "https://foot-ours.github.io/ligue1/pfc.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
+            "Peluche Saint-Germours": { logo: "https://foot-ours.github.io/ligue1/psg.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
+            "Olympique d'Ours FC": { logo: "https://foot-ours.github.io/ligue1/oo.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
+            "Associations Carrotes Lapines": { logo: "https://foot-ours.github.io/ligue1/ascl.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 }
         };
 
         const rencontres = [
-            ["<img src='vafc.png'> Valenciennes Footbalours Club vs <img src='tfc.png'> Toulours Football Club", "<img src='pfc.png'> Peluche Football Club vs <img src='psg.png'> Peluche Saint-Germours", "<img src='oo.png'> Olympique d'Ours FC vs <img src='ascl.png'> Associations Carrotes Lapines"],
-            ["<img src='tfc.png'> Toulours Football Club vs <img src='pfc.png'> Peluche Football Club", "<img src='psg.png'> Peluche Saint-Germours vs <img src='oo.png'> Olympique d'Ours FC", "<img src='ascl.png'> Associations Carrotes Lapines vs <img src='vafc.png'> Valenciennes Footbalours Club"],
-            ["<img src='pfc.png'> Peluche Football Club vs <img src='vafc.png'> Valenciennes Footbalours Club", "<img src='oo.png'> Olympique d'Ours FC vs <img src='tfc.png'> Toulours Football Club", "<img src='ascl.png'> Associations Carrotes Lapines vs <img src='psg.png'> Peluche Saint-Germours"],
-            ["<img src='vafc.png'> Valenciennes Footbalours Club vs <img src='psg.png'> Peluche Saint-Germours", "<img src='tfc.png'> Toulours Football Club vs <img src='ascl.png'> Associations Carrotes Lapines", "<img src='pfc.png'> Peluche Football Club vs <img src='oo.png'> Olympique d'Ours FC"],
-            ["<img src='psg.png'> Peluche Saint-Germours vs <img src='tfc.png'> Toulours Football Club", "<img src='ascl.png'> Associations Carrotes Lapines vs <img src='pfc.png'> Peluche Football Club", "<img src='oo.png'> Olympique d'Ours FC vs <img src='vafc.png'> Valenciennes Footbalours Club"],
-            ["<img src='tfc.png'> Toulours Football Club vs <img src='vafc.png'> Valenciennes Footbalours Club", "<img src='psg.png'> Peluche Saint-Germours vs <img src='pfc.png'> Peluche Football Club", "<img src='ascl.png'> Associations Carrotes Lapines vs <img src='oo.png'> Olympique d'Ours FC"],
-            ["<img src='pfc.png'> Peluche Football Club vs <img src='tfc.png'> Toulours Football Club", "<img src='oo.png'> Olympique d'Ours FC vs <img src='psg.png'> Peluche Saint-Germours", "<img src='vafc.png'> Valenciennes Footbalours Club vs <img src='ascl.png'> Associations Carrotes Lapines"],
-            ["<img src='vafc.png'> Valenciennes Footbalours Club vs <img src='pfc.png'> Peluche Football Club", "<img src='tfc.png'> Toulours Football Club vs <img src='oo.png'> Olympique d'Ours FC", "<img src='psg.png'> Peluche Saint-Germours vs <img src='ascl.png'> Associations Carrotes Lapines"],
-            ["<img src='psg.png'> Peluche Saint-Germours vs <img src='vafc.png'> Valenciennes Footbalours Club", "<img src='ascl.png'> Associations Carrotes Lapines vs <img src='tfc.png'> Toulours Football Club", "<img src='oo.png'> Olympique d'Ours FC vs <img src='pfc.png'> Peluche Football Club"],
-            ["<img src='vafc.png'> Valenciennes Footbalours Club vs <img src='oo.png'> Olympique d'Ours FC", "<img src='pfc.png'> Peluche Football Club vs <img src='ascl.png'> Associations Carrotes Lapines", "<img src='tfc.png'> Toulours Football Club vs <img src='psg.png'> Peluche Saint-Germours"]
+            ["<img src='https://foot-ours.github.io/ligue1/vafc.png'> Valenciennes Footbalours Club vs <img src='https://foot-ours.github.io/ligue1/tfc.png'> Toulours Football Club", "<img src='https://foot-ours.github.io/ligue1/pfc.png'> Peluche Football Club vs <img src='https://foot-ours.github.io/ligue1/psg.png'> Peluche Saint-Germours", "<img src='https://foot-ours.github.io/ligue1/oo.png'> Olympique d'Ours FC vs <img src='https://foot-ours.github.io/ligue1/ascl.png'> Associations Carrotes Lapines"],
+            ["<img src='https://foot-ours.github.io/ligue1/tfc.png'> Toulours Football Club vs <img src='https://foot-ours.github.io/ligue1/pfc.png'> Peluche Football Club", "<img src='https://foot-ours.github.io/ligue1/psg.png'> Peluche Saint-Germours vs <img src='https://foot-ours.github.io/ligue1/oo.png'> Olympique d'Ours FC", "<img src='https://foot-ours.github.io/ligue1/ascl.png'> Associations Carrotes Lapines vs <img src='https://foot-ours.github.io/ligue1/vafc.png'> Valenciennes Footbalours Club"],
+            ["<img src='https://foot-ours.github.io/ligue1/pfc.png'> Peluche Football Club vs <img src='https://foot-ours.github.io/ligue1/vafc.png'> Valenciennes Footbalours Club", "<img src='https://foot-ours.github.io/ligue1/oo.png'> Olympique d'Ours FC vs <img src='https://foot-ours.github.io/ligue1/tfc.png'> Toulours Football Club", "<img src='https://foot-ours.github.io/ligue1/ascl.png'> Associations Carrotes Lapines vs <img src='https://foot-ours.github.io/ligue1/psg.png'> Peluche Saint-Germours"],
+            ["<img src='https://foot-ours.github.io/ligue1/vafc.png'> Valenciennes Footbalours Club vs <img src='https://foot-ours.github.io/ligue1/psg.png'> Peluche Saint-Germours", "<img src='https://foot-ours.github.io/ligue1/tfc.png'> Toulours Football Club vs <img src='https://foot-ours.github.io/ligue1/ascl.png'> Associations Carrotes Lapines", "<img src='https://foot-ours.github.io/ligue1/pfc.png'> Peluche Football Club vs <img src='https://foot-ours.github.io/ligue1/oo.png'> Olympique d'Ours FC"],
+            ["<img src='https://foot-ours.github.io/ligue1/psg.png'> Peluche Saint-Germours vs <img src='https://foot-ours.github.io/ligue1/tfc.png'> Toulours Football Club", "<img src='https://foot-ours.github.io/ligue1/ascl.png'> Associations Carrotes Lapines vs <img src='https://foot-ours.github.io/ligue1/pfc.png'> Peluche Football Club", "<img src='https://foot-ours.github.io/ligue1/oo.png'> Olympique d'Ours FC vs <img src='https://foot-ours.github.io/ligue1/vafc.png'> Valenciennes Footbalours Club"],
+            ["<img src='https://foot-ours.github.io/ligue1/tfc.png'> Toulours Football Club vs <img src='https://foot-ours.github.io/ligue1/vafc.png'> Valenciennes Footbalours Club", "<img src='https://foot-ours.github.io/ligue1/psg.png'> Peluche Saint-Germours vs <img src='https://foot-ours.github.io/ligue1/pfc.png'> Peluche Football Club", "<img src='https://foot-ours.github.io/ligue1/ascl.png'> Associations Carrotes Lapines vs <img src='https://foot-ours.github.io/ligue1/oo.png'> Olympique d'Ours FC"],
+            ["<img src='https://foot-ours.github.io/ligue1/pfc.png'> Peluche Football Club vs <img src='https://foot-ours.github.io/ligue1/tfc.png'> Toulours Football Club", "<img src='https://foot-ours.github.io/ligue1/oo.png'> Olympique d'Ours FC vs <img src='https://foot-ours.github.io/ligue1/psg.png'> Peluche Saint-Germours", "<img src='https://foot-ours.github.io/ligue1/vafc.png'> Valenciennes Footbalours Club vs <img src='https://foot-ours.github.io/ligue1/ascl.png'> Associations Carrotes Lapines"],
+            ["<img src='https://foot-ours.github.io/ligue1/vafc.png'> Valenciennes Footbalours Club vs <img src='https://foot-ours.github.io/ligue1/pfc.png'> Peluche Football Club", "<img src='https://foot-ours.github.io/ligue1/tfc.png'> Toulours Football Club vs <img src='https://foot-ours.github.io/ligue1/oo.png'> Olympique d'Ours FC", "<img src='https://foot-ours.github.io/ligue1/psg.png'> Peluche Saint-Germours vs <img src='https://foot-ours.github.io/ligue1/ascl.png'> Associations Carrotes Lapines"],
+            ["<img src='https://foot-ours.github.io/ligue1/psg.png'> Peluche Saint-Germours vs <img src='https://foot-ours.github.io/ligue1/vafc.png'> Valenciennes Footbalours Club", "<img src='https://foot-ours.github.io/ligue1/ascl.png'> Associations Carrotes Lapines vs <img src='https://foot-ours.github.io/ligue1/tfc.png'> Toulours Football Club", "<img src='https://foot-ours.github.io/ligue1/oo.png'> Olympique d'Ours FC vs <img src='https://foot-ours.github.io/ligue1/pfc.png'> Peluche Football Club"],
+            ["<img src='https://foot-ours.github.io/ligue1/vafc.png'> Valenciennes Footbalours Club vs <img src='https://foot-ours.github.io/ligue1/oo.png'> Olympique d'Ours FC", "<img src='https://foot-ours.github.io/ligue1/pfc.png'> Peluche Football Club vs <img src='https://foot-ours.github.io/ligue1/ascl.png'> Associations Carrotes Lapines", "<img src='https://foot-ours.github.io/ligue1/tfc.png'> Toulours Football Club vs <img src='https://foot-ours.github.io/ligue1/psg.png'> Peluche Saint-Germours"]
         ];
 
         function remplirRencontresTable() {
-    const rencontresBody = document.getElementById('rencontresBody');
-    rencontresBody.innerHTML = '';
+            const rencontresBody = document.getElementById('rencontresBody');
+            rencontresBody.innerHTML = '';
 
-    rencontres.forEach((journee, index) => {
-        const row = rencontresBody.insertRow();
-        const cellJournee = row.insertCell();
-        cellJournee.textContent = index + 1;
+            rencontres.forEach((journee, index) => {
+                const row = rencontresBody.insertRow();
+                const cellJournee = row.insertCell();
+                cellJournee.textContent = index + 1;
 
-        journee.forEach((match, matchIndex) => {
-            const cellMatch = row.insertCell();
-            const [equipe1, equipe2] = match.split(' vs ').map(team => team.replace(/<img.*?>/, '').trim());
+                journee.forEach((match, matchIndex) => {
+                    const cellMatch = row.insertCell();
+                    const matchParts = match.split(' vs ');
+                    const equipe1 = matchParts[0].replace(/<img.*?>/, '').trim();
+                    const equipe2 = matchParts[1].replace(/<img.*?>/, '').trim();
+                    
+                    cellMatch.innerHTML = `
+                        ${matchParts[0]}
+                        <input type="number" class="score-input" id="score_${index}_${matchIndex}_1" data-journee="${index}" data-match="${matchIndex}" data-equipe="${equipe1}">
+                        - 
+                        <input type="number" class="score-input" id="score_${index}_${matchIndex}_2" data-journee="${index}" data-match="${matchIndex}" data-equipe="${equipe2}">
+                        ${matchParts[1]}
+                        <button class="save-btn" onclick="enregistrerMatch(${index}, ${matchIndex})">Enregistrer</button>
+                        <span class="delete-btn" onclick="reinitialiserMatch(${index}, ${matchIndex})">✖</span>
+                    `;
+                });
+            });
 
-            cellMatch.innerHTML = `
-                ${equipe1} 
-                <input type="number" class="score-input" id="score_${index}_${matchIndex}_1" data-journee="${index}" data-match="${matchIndex}" data-equipe="${equipe1}">
-                - 
-                <input type="number" class="score-input" id="score_${index}_${matchIndex}_2" data-journee="${index}" data-match="${matchIndex}" data-equipe="${equipe2}">
-                ${equipe2}
-                <button class="save-btn" onclick="enregistrerMatch(${index}, ${matchIndex})">Enregistrer</button>
-                <span class="delete-btn" onclick="reinitialiserMatch(${index}, ${matchIndex})">✖</span>
-            `;
-        });
-    });
+            matches.forEach((journee, journeeIndex) => {
+                journee.forEach((match, matchIndex) => {
+                    const equipesMatch = Object.keys(match);
+                    document.getElementById(`score_${journeeIndex}_${matchIndex}_1`).value = match[equipesMatch[0]];
+                    document.getElementById(`score_${journeeIndex}_${matchIndex}_2`).value = match[equipesMatch[1]];
+                });
+            });
+        }
 
-    matches.forEach((journee, journeeIndex) => {
-        journee.forEach((match, matchIndex) => {
-            const equipesMatch = Object.keys(match);
-            document.getElementById(`score_${journeeIndex}_${matchIndex}_1`).value = match[equipesMatch[0]];
-            document.getElementById(`score_${journeeIndex}_${matchIndex}_2`).value = match[equipesMatch[1]];
-        });
-    });
-}
+        function updateNewsFeed() {
+            const newsFeed = document.getElementById('newsFeed');
+            newsFeed.innerHTML = '<h2>Actualités de la Ligue</h2>';
 
-function enregistrerMatch(journee, matchIndex) {
-    const score1 = parseInt(document.getElementById(`score_${journee}_${matchIndex}_1`).value);
-    const score2 = parseInt(document.getElementById(`score_${journee}_${matchIndex}_2`).value);
-    const equipe1 = document.getElementById(`score_${journee}_${matchIndex}_1`).dataset.equipe;
-    const equipe2 = document.getElementById(`score_${journee}_${matchIndex}_2`).dataset.equipe;
+            let recentNews = '';
+            matches.forEach((journee, journeeIndex) => {
+                journee.forEach((match, matchIndex) => {
+                    const equipesMatch = Object.keys(match);
+                    recentNews += `
+                        <div class="news-item">
+                            <h3>Journée ${journeeIndex + 1}</h3>
+                            <p>${equipesMatch[0]} ${match[equipesMatch[0]]} - ${match[equipesMatch[1]]} ${equipesMatch[1]}</p>
+                        </div>
+                    `;
+                });
+            });
 
-    if (!isNaN(score1) && !isNaN(score2)) {
-        matches[journee] = matches[journee] || [];
-        matches[journee][matchIndex] = {
-            [equipe1]: score1,
-            [equipe2]: score2
-        };
+            if (!recentNews) {
+                recentNews = `
+                    <div class="news-item">
+                        <h3>Bienvenue sur le site de la Ligue 1 des Ours</h3>
+                        <p>Suivez tous les résultats et le classement de la saison en cours.</p>
+                    </div>
+                `;
+            }
 
-        sauvegarderMatches();
-        afficherMessage();
-        calculerClassement();
-    }
-}
+            newsFeed.innerHTML += recentNews;
+        }
 
+        function enregistrerMatch(journee, matchIndex) {
+            const score1 = parseInt(document.getElementById(`score_${journee}_${matchIndex}_1`).value);
+            const score2 = parseInt(document.getElementById(`score_${journee}_${matchIndex}_2`).value);
+            const equipe1 = document.getElementById(`score_${journee}_${matchIndex}_1`).dataset.equipe;
+            const equipe2 = document.getElementById(`score_${journee}_${matchIndex}_2`).dataset.equipe;
+
+            if (!isNaN(score1) && !isNaN(score2)) {
+                matches[journee] = matches[journee] || [];
+                matches[journee][matchIndex] = {
+                    [equipe1]: score1,
+                    [equipe2]: score2
+                };
+
+                sauvegarderMatches();
+                afficherMessage();
+                calculerClassement();
+                updateNewsFeed();
+            }
+        }
 
         function reinitialiserMatch(journee, matchIndex) {
             const equipe1 = document.getElementById(`score_${journee}_${matchIndex}_1`).dataset.equipe;
@@ -253,6 +372,7 @@ function enregistrerMatch(journee, matchIndex) {
 
                 sauvegarderMatches();
                 calculerClassement();
+                updateNewsFeed();
             }
         }
 
@@ -314,7 +434,12 @@ function enregistrerMatch(journee, matchIndex) {
             classementBody.innerHTML = '';
 
             Object.entries(equipes)
-                .sort((a, b) => b[1].points - a[1].points)
+                .sort((a, b) => {
+                    if (b[1].points !== a[1].points) {
+                        return b[1].points - a[1].points;
+                    }
+                    return (b[1].butsPour - b[1].butsContre) - (a[1].butsPour - a[1].butsContre);
+                })
                 .forEach(([equipe, data]) => {
                     const row = classementBody.insertRow();
                     row.insertCell(0).textContent = equipe;
@@ -381,7 +506,6 @@ function enregistrerMatch(journee, matchIndex) {
             }
         }
 
-
         function changerCouleurBouton(id) {
             const bouton = document.getElementById(id);
             bouton.classList.add('clicked-btn');
@@ -390,34 +514,65 @@ function enregistrerMatch(journee, matchIndex) {
             }, 2000);
         }
 
-        async function fetchNews() {
-            const response = await fetch('https://api.example.com/ligue1/news');
-            const data = await response.json();
-            const newsFeed = document.getElementById('newsFeed');
-            newsFeed.innerHTML = data.articles.map(article => `
-                <div>
-                    <h3>${article.title}</h3>
-                    <p>${article.description}</p>
-                    <a href="${article.url}" target="_blank">Lire la suite</a>
-                </div>
-            `).join('');
+        function rotateTeams() {
+            const teams = Object.entries(equipes);
+            let currentIndex = 0;
+
+            function updateBanner() {
+                const [teamName, teamData] = teams[currentIndex];
+                const teamNameEl = document.getElementById('teamName');
+                
+                teamNameEl.innerHTML = '';
+                
+                // Use the correct logo from the equipes object
+                const logoImg = document.createElement('img');
+                logoImg.src = teamData.logo; // This now uses the correct logo URL from equipes
+                logoImg.style.width = '50px';
+                logoImg.style.marginRight = '15px';
+                teamNameEl.appendChild(logoImg);
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = teamName;
+                teamNameEl.appendChild(nameSpan);
+                
+                // Update banner image with correct logo
+                document.getElementById('bannerImage').src = teamData.logo;
+                
+                const banner = document.querySelector('.banner-content');
+                banner.style.opacity = '0';
+                setTimeout(() => {
+                    banner.style.opacity = '1';
+                }, 100);
+                
+                const colors = [
+                    '#ff6b6b',
+                    '#4ecdc4',
+                    '#45b7d1',
+                    '#96c93d',
+                    '#a8e6cf',
+                    '#dcedc1'
+                ];
+                
+                teamNameEl.style.background = `linear-gradient(45deg, 
+                    ${colors[currentIndex % colors.length]}, 
+                    ${colors[(currentIndex + 1) % colors.length]})`;
+                teamNameEl.style.backgroundClip = 'text';
+                teamNameEl.style.webkitBackgroundClip = 'text';
+                
+                currentIndex = (currentIndex + 1) % teams.length;
+            }
+
+            updateBanner();
+            setInterval(updateBanner, 4000);
         }
 
-        // Initialisation
-        remplirRencontresTable();
-        calculerClassement();
-        fetchNews();
+        window.onload = function() {
+            remplirRencontresTable();
+            calculerClassement();
+            updateNewsFeed();
+            rotateTeams();
+        };
     </script>
 
-    <div class="banner">
-      <div class="banner-content">
-        <span id="teamName"></span>
-        <img id="bannerImage" src="" alt="">
-      </div>
-    </div>
-
-    
 </body>
-
-
 </html>
