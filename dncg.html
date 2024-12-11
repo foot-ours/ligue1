@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNCG des Peluches</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #77b5fe; /* Couleur de fond légère et agréable */
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background-color: #f0f0f0;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .tab:hover {
+            background-color: #e0e0e0;
+        }
+        .tab:active, .tab.active {
+            background-color: #d0d0d0;
+            transform: scale(0.98);
+        }
+        #victoires { color: green; }
+        #nuls { color: blue; }
+        #defaites { color: red; }
+        #generer {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        #generer:hover {
+            background-color: #45a049;
+        }
+        #generer:active {
+            transform: scale(0.98);
+        }
+        #resultat {
+            font-size: 24px;
+            text-align: center;
+            margin-top: 20px;
+            min-height: 100px;
+        }
+        @keyframes appear {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate {
+            animation: appear 0.5s;
+        }
+        .confetti, .thumbs-down {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+        .confetti {
+            background-color: #f0f0f0;
+            animation: confetti-fall 3s ease-out infinite;
+        }
+        .thumbs-down {
+            color: red;
+            font-size: 20px;
+            animation: thumbs-down-fall 3s ease-out infinite;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        @keyframes thumbs-down-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculs de la DNCG :</h1>
+        <div class="tabs">
+            <button class="tab active" id="victoires">Victoires</button>
+            <button class="tab" id="nuls">Match nul</button>
+            <button class="tab" id="defaites">Défaites</button>
+        </div>
+        <button id="generer">Générer</button>
+        <div id="resultat"></div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        const genererBtn = document.getElementById('generer');
+        const resultat = document.getElementById('resultat');
+        let activeTab = 'victoires';
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                activeTab = tab.id;
+            });
+        });
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function createParticles(type) {
+            const particleCount = type === 'confetti' ? 50 : 20;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add(type === 'confetti' ? 'confetti' : 'thumbs-down');
+                if (type === 'thumbs-down') {
+                    particle.innerHTML = '👎';
+                }
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 3}s`;
+                if (type === 'confetti') {
+                    particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                }
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 3000);
+            }
+        }
+
+        genererBtn.addEventListener('click', () => {
+            let montant, message;
+            switch (activeTab) {
+                case 'victoires':
+                    montant = getRandomInt(150, 300);
+                    message = `${montant}€ - Excellent !`;
+                    createParticles('confetti');
+                    break;
+                case 'nuls':
+                    montant = getRandomInt(0, 150);
+                    message = `${montant}€ - Pas mal !`;
+                    break;
+                case 'defaites':
+                    montant = getRandomInt(-150, 0);
+                    message = `${montant}€ - Dommage...`;
+                    createParticles('thumbs-down');
+                    break;
+            }
+            resultat.textContent = message;
+            resultat.style.color = getComputedStyle(document.getElementById(activeTab)).color;
+            resultat.classList.remove('animate');
+            void resultat.offsetWidth; // Force reflow
+            resultat.classList.add('animate');
+        });
+    </script>
+</body>
+</html>

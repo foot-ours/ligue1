@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Résultats et Classement Ligue 1 des Ours</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: #003366;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .banner {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: url('https://example.com/banner.jpg') no-repeat center center;
+            background-size: cover;
+        }
+        .banner-text {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+        }
+        .section {
+            padding: 20px;
+        }
+        .team-logos img {
+            width: 100px;
+            height: auto;
+            margin: 10px;
+        }
+        .news-feed {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        .footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .delete-btn {
+            color: red;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .score-input {
+            width: 40px;
+        }
+        table {
+            border: 1px solid black;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid black;
+        }
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .save-btn:hover {
+            background-color: #45a049;
+        }
+        #message {
+            color: green;
+            font-weight: bold;
+            display: none;
+        }
+        #export-buttons, #import-buttons {
+            margin-top: 20px;
+        }
+        .clicked-btn {
+            background-color: #FFD700 !important;
+        }
+        header img {
+            width: 50%;
+            max-width: 100px;
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><img src="OIP.png" alt="Logo de Ligue 1 des Ours"> Résultats et Classement Ligue 1 des Ours</h1>
+    </header>
+
+    <div class="banner">
+        <div class="banner-text">Derniers matchs et temps forts de la Ligue 1</div>
+    </div>
+
+    <div class="section">
+        <h2>Rencontres</h2>
+        <table id="rencontresTable">
+            <thead>
+                <tr>
+                    <th>Journée</th>
+                    <th>Match 1</th>
+                    <th>Match 2</th>
+                    <th>Match 3</th>
+                </tr>
+            </thead>
+            <tbody id="rencontresBody">
+                <!-- Les lignes de rencontres seront insérées ici -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="message">Résultat enregistré avec succès!</div>
+
+    <div class="section">
+        <h2>Classement</h2>
+        <table id="classementTable">
+            <thead>
+                <tr>
+                    <th>Équipe</th>
+                    <th>Points</th>
+                    <th>Matchs joués</th>
+                    <th>But marqués</th>
+                    <th>But encaissés</th>
+                    <th>Différence de buts</th>
+                </tr>
+            </thead>
+            <tbody id="classementBody">
+                <!-- Les lignes du classement seront insérées ici -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="export-buttons" class="section">
+        <button id="exportResultsBtn" onclick="exporterResults()">Exporter Résultats</button>
+        <button id="exportClassementBtn" onclick="exporterClassement()">Exporter Classement</button>
+    </div>
+
+    <div id="import-buttons" class="section">
+        <input type="file" id="importResults" accept=".json" />
+        <button id="importResultsBtn" onclick="importerResults()">Importer Résultats</button>
+        <input type="file" id="importClassement" accept=".json" />
+        <button id="importClassementBtn" onclick="importerClassement()">Importer Classement</button>
+    </div>
+
+    <footer class="footer">
+        &copy; 2024 Ligue 1 des Ours. Tous droits réservés.
+    </footer>
+
+    <script>
+        let matches = JSON.parse(localStorage.getItem('matches')) || [];
+        let equipes = JSON.parse(localStorage.getItem('equipes')) || {
+            "Valenciennes Footbalours Club": { logo: "vafc.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
+            "Toulours Football Club": { logo: "tfc.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
+            "Peluche Football Club": { logo: "pfc.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
+            "Peluche Saint-Germours": { logo: "psg.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
+            "Olympique d'Ours FC": { logo: "oo.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 },
+            "Associations Carrotes Lapines": { logo: "ascl.png", points: 0, matchs: 0, butsPour: 0, butsContre: 0 }
+        };
+
+        const rencontres = [
+            ["<img src='vafc.png'> Valenciennes Footbalours Club vs <img src='tfc.png'> Toulours Football Club", "<img src='pfc.png'> Peluche Football Club vs <img src='psg.png'> Peluche Saint-Germours", "<img src='oo.png'> Olympique d'Ours FC vs <img src='ascl.png'> Associations Carrotes Lapines"],
+            ["<img src='tfc.png'> Toulours Football Club vs <img src='pfc.png'> Peluche Football Club", "<img src='psg.png'> Peluche Saint-Germours vs <img src='oo.png'> Olympique d'Ours FC", "<img src='ascl.png'> Associations Carrotes Lapines vs <img src='vafc.png'> Valenciennes Footbalours Club"],
+            ["<img src='pfc.png'> Peluche Football Club vs <img src='vafc.png'> Valenciennes Footbalours Club", "<img src='oo.png'> Olympique d'Ours FC vs <img src='tfc.png'> Toulours Football Club", "<img src='ascl.png'> Associations Carrotes Lapines vs <img src='psg.png'> Peluche Saint-Germours"],
+            ["<img src='vafc.png'> Valenciennes Footbalours Club vs <img src='psg.png'> Peluche Saint-Germours", "<img src='tfc.png'> Toulours Football Club vs <img src='ascl.png'> Associations Carrotes Lapines", "<img src='pfc.png'> Peluche Football Club vs <img src='oo.png'> Olympique d'Ours FC"],
+            ["<img src='psg.png'> Peluche Saint-Germours vs <img src='tfc.png'> Toulours Football Club", "<img src='ascl.png'> Associations Carrotes Lapines vs <img src='pfc.png'> Peluche Football Club", "<img src='oo.png'> Olympique d'Ours FC vs <img src='vafc.png'> Valenciennes Footbalours Club"],
+            ["<img src='tfc.png'> Toulours Football Club vs <img src='vafc.png'> Valenciennes Footbalours Club", "<img src='psg.png'> Peluche Saint-Germours vs <img src='pfc.png'> Peluche Football Club", "<img src='ascl.png'> Associations Carrotes Lapines vs <img src='oo.png'> Olympique d'Ours FC"],
+            ["<img src='pfc.png'> Peluche Football Club vs <img src='tfc.png'> Toulours Football Club", "<img src='oo.png'> Olympique d'Ours FC vs <img src='psg.png'> Peluche Saint-Germours", "<img src='vafc.png'> Valenciennes Footbalours Club vs <img src='ascl.png'> Associations Carrotes Lapines"],
+            ["<img src='vafc.png'> Valenciennes Footbalours Club vs <img src='pfc.png'> Peluche Football Club", "<img src='tfc.png'> Toulours Football Club vs <img src='oo.png'> Olympique d'Ours FC", "<img src='psg.png'> Peluche Saint-Germours vs <img src='ascl.png'> Associations Carrotes Lapines"],
+            ["<img src='psg.png'> Peluche Saint-Germours vs <img src='vafc.png'> Valenciennes Footbalours Club", "<img src='ascl.png'> Associations Carrotes Lapines vs <img src='tfc.png'> Toulours Football Club", "<img src='oo.png'> Olympique d'Ours FC vs <img src='pfc.png'> Peluche Football Club"],
+            ["<img src='vafc.png'> Valenciennes Footbalours Club vs <img src='oo.png'> Olympique d'Ours FC", "<img src='pfc.png'> Peluche Football Club vs <img src='ascl.png'> Associations Carrotes Lapines", "<img src='tfc.png'> Toulours Football Club vs <img src='psg.png'> Peluche Saint-Germours"]
+        ];
+
+        function remplirRencontresTable() {
+    const rencontresBody = document.getElementById('rencontresBody');
+    rencontresBody.innerHTML = '';
+
+    rencontres.forEach((journee, index) => {
+        const row = rencontresBody.insertRow();
+        const cellJournee = row.insertCell();
+        cellJournee.textContent = index + 1;
+
+        journee.forEach((match, matchIndex) => {
+            const cellMatch = row.insertCell();
+            const [equipe1, equipe2] = match.split(' vs ').map(team => team.replace(/<img.*?>/, '').trim());
+
+            cellMatch.innerHTML = `
+                ${equipe1} 
+                <input type="number" class="score-input" id="score_${index}_${matchIndex}_1" data-journee="${index}" data-match="${matchIndex}" data-equipe="${equipe1}">
+                - 
+                <input type="number" class="score-input" id="score_${index}_${matchIndex}_2" data-journee="${index}" data-match="${matchIndex}" data-equipe="${equipe2}">
+                ${equipe2}
+                <button class="save-btn" onclick="enregistrerMatch(${index}, ${matchIndex})">Enregistrer</button>
+                <span class="delete-btn" onclick="reinitialiserMatch(${index}, ${matchIndex})">✖</span>
+            `;
+        });
+    });
+
+    matches.forEach((journee, journeeIndex) => {
+        journee.forEach((match, matchIndex) => {
+            const equipesMatch = Object.keys(match);
+            document.getElementById(`score_${journeeIndex}_${matchIndex}_1`).value = match[equipesMatch[0]];
+            document.getElementById(`score_${journeeIndex}_${matchIndex}_2`).value = match[equipesMatch[1]];
+        });
+    });
+}
+
+function enregistrerMatch(journee, matchIndex) {
+    const score1 = parseInt(document.getElementById(`score_${journee}_${matchIndex}_1`).value);
+    const score2 = parseInt(document.getElementById(`score_${journee}_${matchIndex}_2`).value);
+    const equipe1 = document.getElementById(`score_${journee}_${matchIndex}_1`).dataset.equipe;
+    const equipe2 = document.getElementById(`score_${journee}_${matchIndex}_2`).dataset.equipe;
+
+    if (!isNaN(score1) && !isNaN(score2)) {
+        matches[journee] = matches[journee] || [];
+        matches[journee][matchIndex] = {
+            [equipe1]: score1,
+            [equipe2]: score2
+        };
+
+        sauvegarderMatches();
+        afficherMessage();
+        calculerClassement();
+    }
+}
+
+
+        function reinitialiserMatch(journee, matchIndex) {
+            const equipe1 = document.getElementById(`score_${journee}_${matchIndex}_1`).dataset.equipe;
+            const equipe2 = document.getElementById(`score_${journee}_${matchIndex}_2`).dataset.equipe;
+
+            document.getElementById(`score_${journee}_${matchIndex}_1`).value = '';
+            document.getElementById(`score_${journee}_${matchIndex}_2`).value = '';
+
+            if (matches[journee] && matches[journee][matchIndex]) {
+                delete matches[journee][matchIndex];
+
+                sauvegarderMatches();
+                calculerClassement();
+            }
+        }
+
+        function sauvegarderMatches() {
+            localStorage.setItem('matches', JSON.stringify(matches));
+        }
+
+        function afficherMessage() {
+            const message = document.getElementById('message');
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 2000);
+        }
+
+        function calculerClassement() {
+            for (let equipe in equipes) {
+                equipes[equipe].points = 0;
+                equipes[equipe].matchs = 0;
+                equipes[equipe].butsPour = 0;
+                equipes[equipe].butsContre = 0;
+            }
+
+            matches.forEach(journee => {
+                journee.forEach(match => {
+                    const equipesMatch = Object.keys(match);
+                    const score1 = match[equipesMatch[0]];
+                    const score2 = match[equipesMatch[1]];
+
+                    equipes[equipesMatch[0]].matchs++;
+                    equipes[equipesMatch[1]].matchs++;
+
+                    equipes[equipesMatch[0]].butsPour += score1;
+                    equipes[equipesMatch[0]].butsContre += score2;
+                    equipes[equipesMatch[1]].butsPour += score2;
+                    equipes[equipesMatch[1]].butsContre += score1;
+
+                    if (score1 > score2) {
+                        equipes[equipesMatch[0]].points += 3;
+                    } else if (score2 > score1) {
+                        equipes[equipesMatch[1]].points += 3;
+                    } else {
+                        equipes[equipesMatch[0]].points += 1;
+                        equipes[equipesMatch[1]].points += 1;
+                    }
+                });
+            });
+
+            sauvegarderEquipes();
+            mettreAJourClassement();
+        }
+
+        function sauvegarderEquipes() {
+            localStorage.setItem('equipes', JSON.stringify(equipes));
+        }
+
+        function mettreAJourClassement() {
+            const classementBody = document.getElementById('classementBody');
+            classementBody.innerHTML = '';
+
+            Object.entries(equipes)
+                .sort((a, b) => b[1].points - a[1].points)
+                .forEach(([equipe, data]) => {
+                    const row = classementBody.insertRow();
+                    row.insertCell(0).textContent = equipe;
+                    row.insertCell(1).textContent = data.points;
+                    row.insertCell(2).textContent = data.matchs;
+                    row.insertCell(3).textContent = data.butsPour;
+                    row.insertCell(4).textContent = data.butsContre;
+                    row.insertCell(5).textContent = data.butsPour - data.butsContre;
+                });
+        }
+
+        function exporterResults() {
+            const results = JSON.stringify(matches, null, 2);
+            const blob = new Blob([results], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'results.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            changerCouleurBouton('exportResultsBtn');
+        }
+
+        function exporterClassement() {
+            const classement = JSON.stringify(equipes, null, 2);
+            const blob = new Blob([classement], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'classement.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            changerCouleurBouton('exportClassementBtn');
+        }
+
+        function importerResults() {
+            const fileInput = document.getElementById('importResults');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    matches = JSON.parse(e.target.result);
+                    sauvegarderMatches();
+                    remplirRencontresTable();
+                    calculerClassement();
+                };
+                reader.readAsText(file);
+                changerCouleurBouton('importResultsBtn');
+            }
+        }
+
+        function importerClassement() {
+            const fileInput = document.getElementById('importClassement');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    equipes = JSON.parse(e.target.result);
+                    sauvegarderEquipes();
+                    mettreAJourClassement();
+                };
+                reader.readAsText(file);
+                changerCouleurBouton('importClassementBtn');
+            }
+        }
+
+
+        function changerCouleurBouton(id) {
+            const bouton = document.getElementById(id);
+            bouton.classList.add('clicked-btn');
+            setTimeout(() => {
+                bouton.classList.remove('clicked-btn');
+            }, 2000);
+        }
+
+        async function fetchNews() {
+            const response = await fetch('https://api.example.com/ligue1/news');
+            const data = await response.json();
+            const newsFeed = document.getElementById('newsFeed');
+            newsFeed.innerHTML = data.articles.map(article => `
+                <div>
+                    <h3>${article.title}</h3>
+                    <p>${article.description}</p>
+                    <a href="${article.url}" target="_blank">Lire la suite</a>
+                </div>
+            `).join('');
+        }
+
+        // Initialisation
+        remplirRencontresTable();
+        calculerClassement();
+        fetchNews();
+    </script>
+
+    <div class="banner">
+      <div class="banner-content">
+        <span id="teamName"></span>
+        <img id="bannerImage" src="" alt="">
+      </div>
+    </div>
+
+    
+</body>
+
+
+</html>

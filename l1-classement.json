@@ -1,0 +1,44 @@
+{
+  "Valenciennes Footbalours Club": {
+    "logo": "<img src='vafc.png'>",
+    "points": 1,
+    "matchs": 1,
+    "butsPour": 1,
+    "butsContre": 1
+  },
+  "Toulours Football Club": {
+    "logo": "<img src='tfc.png'>",
+    "points": 1,
+    "matchs": 1,
+    "butsPour": 1,
+    "butsContre": 1
+  },
+  "Peluche Football Club": {
+    "logo": "<img src='pfc.png'>",
+    "points": 0,
+    "matchs": 0,
+    "butsPour": 0,
+    "butsContre": 0
+  },
+  "Peluche Saint-Germours": {
+    "logo": "<img src='psg.png'>",
+    "points": 0,
+    "matchs": 0,
+    "butsPour": 0,
+    "butsContre": 0
+  },
+  "Olympique d'Ours FC": {
+    "logo": "<img src='oo.png'>",
+    "points": 0,
+    "matchs": 0,
+    "butsPour": 0,
+    "butsContre": 0
+  },
+  "Associations Carrotes Lapines": {
+    "logo": "<img src='ascl.png'>",
+    "points": 0,
+    "matchs": 0,
+    "butsPour": 0,
+    "butsContre": 0
+  }
+}
