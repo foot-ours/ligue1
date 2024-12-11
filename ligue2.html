@@ -156,8 +156,64 @@
             vertical-align: middle;
             transition: background-color 0.3s ease;
         }
-        tr:hover td {
-            background-color: #f8f9fa;
+        #classementTable tr:nth-child(1) td {
+            background-color: rgba(76, 175, 80, 0.3);
+            font-weight: bold;
+            border-left: 3px solid #4CAF50;
+        }
+        #classementTable tr:nth-child(2) td {
+            background-color: rgba(76, 175, 80, 0.2);
+            font-weight: bold;
+            border-left: 2px solid #4CAF50;
+        }
+        #classementTable tr:nth-child(3) td {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left: 1px solid #4CAF50;
+        }
+        #classementTable tr:nth-last-child(1) td {
+            background-color: rgba(244, 67, 54, 0.3);
+            font-weight: bold;
+            border-left: 3px solid #F44336;
+        }
+        #classementTable tr:nth-last-child(2) td {
+            background-color: rgba(244, 67, 54, 0.2);
+            font-weight: bold;
+            border-left: 2px solid #F44336;
+        }
+        #classementTable tr:nth-child(-n+3):hover td,
+        #classementTable tr:nth-last-child(-n+2):hover td {
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #classementTable tr:hover td {
+            filter: brightness(0.95);
+            transition: all 0.3s ease;
+        }
+        #classementTable td {
+            transition: background-color 0.3s ease;
+        }
+        #classementTable td {
+            position: relative;
+            overflow: hidden;
+        }
+        #classementTable td::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+        }
+        #classementTable tr:hover td::after {
+            animation: shimmer 1s forwards;
+        }
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
         }
         .score-input {
             width: 40px;
@@ -188,56 +244,11 @@
             background: linear-gradient(45deg, #003366, #004d99);
             transform: translateY(-2px);
         }
-        #classementTable tr:nth-child(1) td {
-            background-color: rgba(76, 175, 80, 0.1);
-            font-weight: bold;
-        }
-        #classementTable tr:nth-child(2) td {
-            background-color: rgba(76, 175, 80, 0.05);
-        }
-        #classementTable tr:nth-child(3) td {
-            background-color: rgba(76, 175, 80, 0.02);
-        }
-        #classementTable tr:nth-last-child(1) td {
-            background-color: rgba(244, 67, 54, 0.1);
-        }
-        #classementTable tr:nth-last-child(2) td {
-            background-color: rgba(244, 67, 54, 0.05);
-        }
-        #classementTable tr:hover td {
-            filter: brightness(0.95);
-            transition: all 0.3s ease;
-        }
-        #classementTable td {
-            transition: background-color 0.3s ease;
-        }
-        #rencontresTable td, #classementTable td {
-            position: relative;
-            overflow: hidden;
-        }
         #rencontresTable img {
             height: 25px;
             width: auto;
             vertical-align: middle;
             margin: 0 5px;
-        }
-        #rencontresTable td::after, #classementTable td::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: translateX(-100%);
-        }
-        #rencontresTable tr:hover td::after, #classementTable tr:hover td::after {
-            animation: shimmer 1s forwards;
-        }
-        @keyframes shimmer {
-            100% {
-                transform: translateX(100%);
-            }
         }
         .footer {
             text-align: center;
